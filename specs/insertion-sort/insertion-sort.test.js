@@ -14,12 +14,51 @@
 */
 
 function insertionSort(nums) {
-  // code goes here
+  const getIndexToInsert = (val, endIndex, arr) => {
+    let index = endIndex - 1,
+      found = false;
+
+    while (!found && index >= 0) {
+      if (arr[index] <= val) {
+        found = true;
+      } else {
+        index--;
+      }
+    }
+
+    return index + 1;
+  };
+
+  const insert = (oldIndex, newIndex, arr) => {
+    let shiftVal = arr[newIndex];
+
+    arr[newIndex] = arr[oldIndex];
+
+    while (newIndex < oldIndex) {
+      newIndex++;
+
+      let temp = arr[newIndex];
+      arr[newIndex] = shiftVal;
+      shiftVal = temp;
+    }
+  };
+
+  /************************** */
+
+  let currIndex = 1;
+
+  while (currIndex < nums.length) {
+    let indexToInsert = getIndexToInsert(nums[currIndex], currIndex, nums);
+
+    insert(currIndex, indexToInsert, nums);
+
+    currIndex++;
+  }
 }
 
 // unit tests
 // do not modify the below code
-test.skip("insertion sort", function () {
+test("insertion sort", function () {
   const nums = [10, 5, 3, 8, 2, 6, 4, 7, 9, 1];
   insertionSort(nums);
   expect(nums).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
