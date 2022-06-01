@@ -11,12 +11,49 @@
 */
 
 function bubbleSort(nums) {
-  // code goes here
+  if (nums.length <= 1) return nums;
+
+  const shouldSwap = (aIndex, bIndex, arr) => arr[aIndex] > arr[bIndex];
+
+  const swap = (aIndex, bIndex, arr) => {
+    let temp = arr[aIndex];
+
+    arr[aIndex] = arr[bIndex];
+    arr[bIndex] = temp;
+  };
+
+  // ******************************************
+
+  let aIndex = 0,
+    bIndex = 1,
+    sortedArr = [...nums];
+
+  let done = false,
+    endIndex = sortedArr.length;
+
+  while (!done) {
+    done = true;
+
+    while (bIndex < endIndex) {
+      if (shouldSwap(aIndex, bIndex, sortedArr)) {
+        swap(aIndex, bIndex, sortedArr);
+        done = false;
+      }
+      aIndex++;
+      bIndex++;
+    }
+
+    aIndex = 0;
+    bIndex = 1;
+    endIndex--;
+  }
+
+  return sortedArr;
 }
 
 // unit tests
 // do not modify the below code
-test.skip("bubble sort", function () {
+test("bubble sort", function () {
   const nums = [10, 5, 3, 8, 2, 6, 4, 7, 9, 1];
   const sortedNums = bubbleSort(nums);
   expect(sortedNums).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
