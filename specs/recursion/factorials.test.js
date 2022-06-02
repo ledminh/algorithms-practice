@@ -10,11 +10,23 @@
   factorial(3) = 6 
 */
 
-function factorial(n) {}
+function factorial(n) {
+  // let arr = [1];
+
+  // while(arr.length < n) {
+  //   arr.push((arr.length + 1) * arr[arr.length - 1])
+  // }
+
+  // return arr[arr.length -1]
+
+  if (n <= 1) return n;
+
+  return n * factorial(n - 1);
+}
 
 // unit tests
 // do not modify the below code
-test.skip("factorials", () => {
+test("factorials", () => {
   expect(factorial(1)).toEqual(1);
   expect(factorial(2)).toEqual(2);
   expect(factorial(3)).toEqual(6);
