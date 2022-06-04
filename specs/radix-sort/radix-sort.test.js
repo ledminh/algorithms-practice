@@ -9,14 +9,50 @@
 
 */
 
+function getDigit(number, place) {
+  return Math.floor(number / place) % 10;
+}
+
+function getLongestNumber(nums) {
+  let max = -1;
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] > max) {
+      max = nums[i];
+    }
+  }
+
+  return max.toString().length;
+}
+
 function radixSort(array) {
-  // code goes here
+  const longestLength = getLongestNumber(array);
+
+  for (let place = 1; place <= Math.pow(10, longestLength - 1); place *= 10) {
+    // [3,0,0,1]
+    const bucketArr = Array.from(Array(10), () => []);
+
+    while (array.length > 0) {
+      const val = array.shift();
+
+      bucketArr[getDigit(val, place)].push(val);
+    }
+
+    for (let i = 0; i < bucketArr.length; i++) {
+      if (bucketArr[i].length > 0) {
+        while (bucketArr[i].length > 0) {
+          array.push(bucketArr[i].shift());
+        }
+      }
+    }
+  }
+
+  return array;
 }
 
 // unit tests
 // do not modify the below code
 test("radix sort", function () {
-  test.skip("should sort correctly", () => {
+  test("should sort correctly", () => {
     const nums = [
       20,
       51,
@@ -65,7 +101,7 @@ test("radix sort", function () {
       3001
     ]);
   });
-  test.skip("should sort 99 random numbers correctly", () => {
+  test("should sort 99 random numbers correctly", () => {
     const fill = 99;
     const nums = new Array(fill)
       .fill()

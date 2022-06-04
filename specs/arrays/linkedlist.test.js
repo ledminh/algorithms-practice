@@ -24,16 +24,106 @@
 */
 
 class LinkedList {
-  // code goes here
+  constructor() {
+    this.length = 0;
+    this.head = null;
+  }
+
+  push(val) {
+    const n = new Node(val);
+
+    if (!this.head) {
+      this.head = n;
+    } else {
+      let currNode = this.head;
+
+      while (currNode.next) {
+        currNode = currNode.next;
+      }
+
+      currNode.next = n;
+    }
+
+    this.length++;
+  }
+
+  pop() {
+    if (this.length === 0) {
+      return null;
+    } else if (this.length === 1) {
+      const n = this.head;
+      this.head = null;
+      this.length--;
+
+      return n.value;
+    }
+
+    let currNode = this.head,
+      nextNode = this.head.next;
+
+    while (nextNode.next) {
+      currNode = nextNode;
+      nextNode = nextNode.next;
+    }
+
+    currNode.next = null;
+    this.length--;
+
+    return nextNode.value;
+  }
+
+  get(index) {
+    let currNode = this.head;
+
+    for (let i = 1; currNode !== null && i <= index; i++) {
+      currNode = currNode.next;
+    }
+
+    return currNode.value;
+  }
+
+  delete(index) {
+    if (this.length === 0) {
+      return null;
+    }
+
+    if (index === 0) {
+      const val = this.head.value;
+      this.head = this.head.next;
+      this.length--;
+      return val;
+    }
+
+    let currNode = this.head.next,
+      prevNode = this.head,
+      i = 1;
+
+    while (currNode && i !== index) {
+      prevNode = currNode;
+      currNode = currNode.next;
+      i++;
+    }
+
+    if (currNode) {
+      prevNode.next = currNode.next;
+      this.length--;
+      return currNode.val;
+    }
+
+    return null;
+  }
 }
 
 class Node {
-  // code goes here
+  constructor(val) {
+    this.value = val;
+    this.next = null;
+  }
 }
 
 // unit tests
 // do not modify the below code
-describe.skip("LinkedList", function () {
+describe("LinkedList", function () {
   const range = (length) =>
     Array.apply(null, { length: length }).map(Number.call, Number);
   const abcRange = (length) =>
