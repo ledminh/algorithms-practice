@@ -14,10 +14,91 @@
 // this is a little tool I wrote to log out the maze to the console.
 // it is opinionated of how to do that and you do not have to do it
 // the way I did. however feel free to use it if you'd like
-const logMaze = require("./logger");
+//const logMaze = require("./logger");
+
+class NodesSet {
+  constructor() {
+    this.nodes = [];
+  }
+
+  add(x, y) {
+    this.nodes.push([x, y]);
+  }
+
+  contains([x, y]) {
+    for (let i = 0; i < this.nodes.length; i++) {
+      if (this.nodes[i][0] === x && this.nodes[i][1] === y) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  shift() {
+    return this.nodes.shift();
+  }
+
+  isEmpty() {
+    return this.nodes.length === 0;
+  }
+
+  length() {
+    return this.nodes.length;
+  }
+}
+
+function getNeighbors([x, y], maxX, maxY) {
+  const neighbors = [];
+
+  if (x > 0) neighbors.push([x - 1, y]);
+  if (x < maxX) neighbors.push([x + 1, y]);
+  if (y > 0) neighbors.push([x, y - 1]);
+  if (y < maxY) neighbors.push([x, y + 1]);
+
+  return neighbors;
+}
 
 function findShortestPathLength(maze, [xA, yA], [xB, yB]) {
-  // code goes here
+  let numSteps = 0;
+
+  const visitedNodes = new NodesSet();
+  visitedNodes.add(xA, yA);
+
+  let queue = new NodesSet();
+  queue.add(xA, yA);
+
+  while (numSteps < maze.length * maze[0].length) {
+    numSteps++;
+
+    let newQueue = new NodesSet();
+
+    while (!queue.isEmpty()) {
+      const currNode = queue.shift();
+
+      const neighbors = getNeighbors(
+        currNode,
+        maze[0].length - 1,
+        maze.length - 1
+      );
+      neighbors.forEach((nNode) => {
+        const x = nNode[0],
+          y = nNode[1];
+        if (!visitedNodes.contains(nNode) && maze[y][x] !== 1) {
+          newQueue.add(x, y);
+          visitedNodes.add(x, y);
+        }
+      });
+    }
+
+    if (newQueue.contains([xB, yB])) {
+      return numSteps;
+    } else {
+      queue = newQueue;
+    }
+  }
+
+  return -1;
 }
 
 // there is a visualization tool in the completed exercise
@@ -26,7 +107,7 @@ function findShortestPathLength(maze, [xA, yA], [xB, yB]) {
 
 // unit tests
 // do not modify the below code
-describe.skip("pathfinding – happy path", function () {
+describe("pathfinding – happy path", function () {
   const fourByFour = [
     [2, 0, 0, 0],
     [0, 0, 0, 0],
@@ -90,7 +171,7 @@ describe.skip("pathfinding – happy path", function () {
 // I care far less if you solve these
 // nonetheless, if you're having fun, solve some of the edge cases too!
 // just remove the .skip from describe.skip
-describe.skip("pathfinding – edge cases", function () {
+describe("pathfinding – edge cases", function () {
   const byEachOther = [
     [0, 0, 0, 0, 0],
     [0, 2, 2, 0, 0],
