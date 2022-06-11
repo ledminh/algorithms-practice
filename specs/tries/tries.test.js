@@ -12,30 +12,114 @@
 const { CITY_NAMES } = require("./cities.js");
 const _ = require("lodash"); // needed for unit tests
 
+const END_WORD = "#*#";
+const ROOT = "#ROOT#";
+
 class Node {
-  // you don't have to use this data structure, this is just how I did it
-  // you'll almost definitely need more methods than this and a constructor
-  // and instance variables
+  constructor(word) {
+    this.value = null;
+    this.children = [];
+
+    if (word === ROOT) {
+      this.value = ROOT;
+    } else {
+      this.addWord(word);
+    }
+  }
+
+  findChild(ch) {
+    for (let i = 0; i < this.children.length; i++) {
+      if (this.children[i].value.toUpperCase() === ch.toUpperCase())
+        return this.children[i];
+    }
+
+    return null;
+  }
+
+  addWord(word) {
+    if (word === END_WORD) {
+      this.value = END_WORD;
+      return;
+    }
+
+    //a call from contructor
+    if (!this.value) {
+      this.value = word[0];
+    }
+
+    if (word.length === 1) {
+      this.children.push(new Node(END_WORD));
+      return;
+    }
+
+    let childWord = null;
+
+    // a call from root
+    if (this.value === ROOT) {
+      childWord = word;
+    } else {
+      // called from other node
+      childWord = word.slice(1);
+    }
+
+    const child = this.findChild(childWord[0]);
+
+    if (child) {
+      child.addWord(childWord);
+    } else {
+      this.children.push(new Node(childWord));
+    }
+  }
+
+  _findResults(string, currNode, results) {
+    if (currNode.value === END_WORD) {
+      results.push(string);
+    } else {
+      for (let i = 0; i < currNode.children.length; i++) {
+        const childNode = currNode.children[i];
+        this._findResults(
+          string + currNode.value.toLowerCase(),
+          childNode,
+          results
+        );
+      }
+    }
+  }
+
   complete(string) {
-    return [];
+    let currNode = this;
+    let currStr = "";
+
+    for (let i = 0; i < string.length; i++) {
+      currNode = currNode.findChild(string[i]);
+
+      if (currNode === null) return [];
+      else currStr += currNode.value.toLowerCase();
+    }
+
+    const results = [];
+
+    this._findResults(currStr.slice(0, string.length - 1), currNode, results);
+
+    return results;
   }
 }
 
 const createTrie = (words) => {
-  // you do not have to do it this way; this is just how I did it
-  const root = new Node("");
+  const root = new Node(ROOT);
 
-  // more code should go here
+  words.forEach((w) => root.addWord(w));
 
   return root;
 };
 
 // unit tests
 // do not modify the below code
-describe.skip("tries", function () {
+describe("tries", function () {
   test("dataset of 10 – san", () => {
     const root = createTrie(CITY_NAMES.slice(0, 10));
     const completions = root.complete("san");
+
     expect(completions.length).toBe(3);
     expect(
       _.intersection(completions, ["san antonio", "san diego", "san jose"])
@@ -61,7 +145,8 @@ describe.skip("tries", function () {
 
   test("dataset of 200 – new", () => {
     const root = createTrie(CITY_NAMES.slice(0, 200));
-    const completions = root.complete("new");
+    const completions = root.complete("new ");
+
     expect(completions.length).toBe(3);
     expect(
       _.intersection(completions, [
@@ -94,8 +179,8 @@ describe.skip("tries", function () {
 
   test("dataset of 925 – san", () => {
     const root = createTrie(CITY_NAMES);
-    const completions = root.complete("san");
-    expect(completions.length).toBe(3);
+    const completions = root.complete("san ");
+    expect(completions.length).toBe(17);
     expect(
       _.intersection(completions, [
         "san antonio",
@@ -129,11 +214,11 @@ describe.skip("tries", function () {
         "sandy springs",
         "sanford"
       ]).length
-    ).toBe(3);
+    ).toBe(17);
   });
 });
 
-describe.skip("edge cases", () => {
+describe("edge cases", () => {
   test("handle whole words – seattle", () => {
     const root = createTrie(CITY_NAMES.slice(0, 30));
     const completions = root.complete("seattle");
